@@ -7,6 +7,7 @@
 #include "opencv2/opencv.hpp"
 
 using namespace cv;
+using namespace std;
 
 
 // CFinalProject01Dlg 대화 상자
@@ -41,7 +42,12 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	VideoCapture* capture;
-	Mat mat_frame;
+	Mat frame;
+	Mat hsv_frame;
 	CImage cimage_mfc;
+	Scalar lowery = Scalar(20, 100, 100);																	// HSV color 노란색 범위 지정
+	Scalar uppery = Scalar(30, 255, 255);
+	Scalar lowerr = Scalar(0, 100, 100);																	// HSV color 빨간색 범위 지정
+	Scalar upperr = Scalar(10, 255, 255);
 };
 
