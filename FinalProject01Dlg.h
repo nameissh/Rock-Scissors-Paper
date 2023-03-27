@@ -5,6 +5,8 @@
 #pragma once
 
 #include "opencv2/opencv.hpp"
+#include "SerialCom.h"
+
 
 using namespace cv;
 using namespace std;
@@ -17,6 +19,9 @@ class CFinalProject01Dlg : public CDialogEx
 public:
 	CFinalProject01Dlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
 
+	CSerialComm* m_comm;
+	LRESULT		OnThreadClosed(WPARAM length, LPARAM lpara);
+	LRESULT		OnReceive(WPARAM length, LPARAM lpara);
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_FINALPROJECT01_DIALOG };
@@ -49,5 +54,12 @@ public:
 	Scalar uppery = Scalar(30, 255, 255);
 	Scalar lowerr = Scalar(0, 100, 100);																	// HSV color 빨간색 범위 지정
 	Scalar upperr = Scalar(10, 255, 255);
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton3();
+	afx_msg void OnEnChangeEdit1();
+	afx_msg void OnEnChangeEdit2();
+	CEdit m_box1;
+	CEdit m_box2;
 };
 

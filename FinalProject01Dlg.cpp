@@ -2,11 +2,12 @@
 // FinalProject01Dlg.cpp: 구현 파일
 //
 
-#include "pch.h"
+
 #include "framework.h"
 #include "FinalProject01.h"
 #include "FinalProject01Dlg.h"
 #include "afxdialogex.h"
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,7 @@ END_MESSAGE_MAP()
 
 CFinalProject01Dlg::CFinalProject01Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FINALPROJECT01_DIALOG, pParent)
+	
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -60,6 +62,8 @@ void CFinalProject01Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_Picture, m_picture);
+	DDX_Control(pDX, IDC_EDIT1, m_box1);
+	DDX_Control(pDX, IDC_EDIT2, m_box2);
 }
 
 BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
@@ -68,6 +72,12 @@ BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON1, &CFinalProject01Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CFinalProject01Dlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CFinalProject01Dlg::OnBnClickedButton3)
+	ON_EN_CHANGE(IDC_EDIT2, &CFinalProject01Dlg::OnEnChangeEdit2)
+	ON_EN_CHANGE(IDC_EDIT1, &CFinalProject01Dlg::OnEnChangeEdit1)
+	ON_MESSAGE(WM_MYRECEIVE, &CFinalProject01Dlg::OnReceive)
 END_MESSAGE_MAP()
 
 
@@ -104,6 +114,8 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
+
+
 	capture = new VideoCapture(0);
 
 	if (!capture->isOpened())
@@ -115,6 +127,12 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 	capture->set(CAP_PROP_FRAME_HEIGHT, 240);
 
 	SetTimer(1000, 30, NULL);
+
+	m_comm = new CSerialComm(_T("\\\\.\\COM5"), _T("115200"), _T("None"), _T("8 Bit"), _T("1 Bit"));          // initial Comm port
+	if (m_comm->Create(GetSafeHwnd()) != 0) //통신포트를열고윈도우의핸들을넘긴다.
+	{
+		;
+	}
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -169,6 +187,37 @@ HCURSOR CFinalProject01Dlg::OnQueryDragIcon()
 }
 
 
+LRESULT CFinalProject01Dlg::OnThreadClosed(WPARAM length, LPARAM lpara)
+{
+	((CSerialComm*)lpara)->HandleClose();
+	delete ((CSerialComm*)lpara);
+
+	return 0;
+}
+
+
+LRESULT CFinalProject01Dlg::OnReceive(WPARAM length, LPARAM lpara)
+{
+	CString str;
+
+	char* data = new char[length + 1];
+	if (m_comm)
+	{
+		m_comm->Receive(data, length);																	// Length 길이만큼 데이터 받음.
+		data[length] = _T('\0');
+		str += _T("\r\n");
+
+		str = CString(data);
+		m_box1.SetWindowTextW(str);																		// m_box1 = CEdit, str을 바로 m_box1에 출력해줌
+
+		str = "";
+		m_box1.LineScroll(m_box1.GetLineCount());
+	}
+	delete data;
+
+	return 0;
+}
+
 
 void CFinalProject01Dlg::OnDestroy()
 {
@@ -220,7 +269,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	putText(frame, text, Point(20, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
 
 
-	int bpp = 8 * frame.elemSize();																	// 화면에 보여주기 위한 처리
+	int bpp = 8 * frame.elemSize();																		// 화면에 보여주기 위한 처리
 	assert((bpp == 8 || bpp == 24 || bpp == 32));
 
 	int padding = 0;
@@ -244,7 +293,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	if (border > 0 || frame.isContinuous() == false)
 	{
-		cv::copyMakeBorder(frame, temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);				// 오른쪽에 최대 3픽셀의 필요한 열 추가
+		cv::copyMakeBorder(frame, temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);						// 오른쪽에 최대 3픽셀의 필요한 열 추가
 	}
 
 	else
@@ -281,7 +330,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 		}
 	}
 
-	if (temp.cols == winSize.width && temp.rows == winSize.height)								// 영상이 대상 사각형과 사이즈가 다름, 전체 사각형에서 스트레치 사용
+	if (temp.cols == winSize.width && temp.rows == winSize.height)										// 영상이 대상 사각형과 사이즈가 다름, 전체 사각형에서 스트레치 사용
 	{																									// src와 dst는 같은 사이즈, 전송 메모리 블록, 여기에 최대 3픽셀의 너비의 패딩 테두리 표시
 		SetDIBitsToDevice(cimage_mfc.GetDC(),															// 대상 사각형
 			0, 0, winSize.width, winSize.height,
@@ -314,4 +363,64 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	cimage_mfc.Destroy();
 
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CFinalProject01Dlg::OnBnClickedButton1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+
+
+	CString str;
+
+	str = _T("S");
+
+	m_comm->Send(str, str.GetLength());
+}
+
+
+void CFinalProject01Dlg::OnBnClickedButton2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CString str;
+
+	str = _T("N");
+
+	m_comm->Send(str, str.GetLength());
+}
+
+
+void CFinalProject01Dlg::OnBnClickedButton3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CString str;
+
+	str = _T("B");
+
+	m_comm->Send(str, str.GetLength());
+}
+
+
+void CFinalProject01Dlg::OnEnChangeEdit1()																								// computer
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CFinalProject01Dlg::OnEnChangeEdit2()																								// score
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
