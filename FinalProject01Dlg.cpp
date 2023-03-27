@@ -114,8 +114,25 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
+	// edit_box 1 font
+	static CFont font;
+	LOGFONT LogFont;
 
+	GetDlgItem(IDC_EDIT1)->GetFont()->GetLogFont(&LogFont);					//editbox 폰트 정보를 LogFonft로 가져옴
+	LogFont.lfWeight = 500;													// 굵기
+	LogFont.lfHeight = 80;													// 폰트 크기
+	font.CreateFontIndirectW(&LogFont);										// 폰트 설정 생성
+	GetDlgItem(IDC_EDIT1)->SetFont(&font);									// 폰트 재설정
 
+	// static_text font
+	CFont m_staticTextFont;
+	m_staticTextFont.CreatePointFont(100, _T("Arial"));						// font size, font face.
+	CStatic* pStaticText = (CStatic*)GetDlgItem(IDC_STATIC);				// Replace IDC_STATIC_TEXT with the ID of your static text control.
+	if (pStaticText) {
+		pStaticText->SetFont(&m_staticTextFont);
+	}
+
+	// camera
 	capture = new VideoCapture(0);
 
 	if (!capture->isOpened())
@@ -128,8 +145,9 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	SetTimer(1000, 30, NULL);
 
+	//serial
 	m_comm = new CSerialComm(_T("\\\\.\\COM5"), _T("115200"), _T("None"), _T("8 Bit"), _T("1 Bit"));          // initial Comm port
-	if (m_comm->Create(GetSafeHwnd()) != 0) //통신포트를열고윈도우의핸들을넘긴다.
+	if (m_comm->Create(GetSafeHwnd()) != 0)																	  //통신포트를 열고 윈도우의 핸들을 넘긴다.
 	{
 		;
 	}
@@ -366,11 +384,9 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 }
 
 
-void CFinalProject01Dlg::OnBnClickedButton1()
+void CFinalProject01Dlg::OnBnClickedButton1()															// start → 랜덤번호 생성 및 가위바위보 결과 출력
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
-
 
 	CString str;
 
@@ -380,7 +396,7 @@ void CFinalProject01Dlg::OnBnClickedButton1()
 }
 
 
-void CFinalProject01Dlg::OnBnClickedButton2()
+void CFinalProject01Dlg::OnBnClickedButton2()															// reset
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
@@ -389,10 +405,12 @@ void CFinalProject01Dlg::OnBnClickedButton2()
 	str = _T("N");
 
 	m_comm->Send(str, str.GetLength());
+
+	GetDlgItem(IDC_EDIT1)->SetWindowText(_T("RESET"));
 }
 
 
-void CFinalProject01Dlg::OnBnClickedButton3()
+void CFinalProject01Dlg::OnBnClickedButton3()															// end
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
@@ -401,6 +419,8 @@ void CFinalProject01Dlg::OnBnClickedButton3()
 	str = _T("B");
 
 	m_comm->Send(str, str.GetLength());
+
+	GetDlgItem(IDC_EDIT1)->SetWindowText(_T("EXIT"));
 }
 
 
