@@ -31,18 +31,24 @@ void loop() {
       if (randNum == 1 || randNum == 4)
       {
         ser1.write(90);
+        delay(1000);
+        ser1.write(-90);
         Serial.println("Scissors");    
       }
       
       else if (randNum == 2 || randNum == 5)
       {
         ser2.write(90);
+        delay(1000);
+        ser2.write(-90);
         Serial.println("Rock");
       }
       
       else if (randNum == 3 || randNum == 6)
       {
-        ser3.write(90); 
+        ser3.write(90);
+        delay(1000);
+        ser3.write(-90); 
         Serial.println("Paper");
       }
     }   
