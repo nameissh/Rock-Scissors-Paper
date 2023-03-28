@@ -251,7 +251,7 @@ LRESULT CFinalProject01Dlg::OnReceive(WPARAM length, LPARAM lpara)
 			com = 2;
 		}
 
-		else if (str.Compare(_T("Paper")) == 1)																			// com = 3
+		else if (str.Compare(_T("Paper")) == 1)
 		{
 			com = 3;
 		}
@@ -308,7 +308,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	if (num_red > 0)																					// 빨간색 스티커가 0개보다 많으면 (1개)
 	{
 		text = "Rock!";
-		user = 2;																						// user → 2 = 바위, 1 = 가위, 3 = 보
+		user = 2;																						// user → 1 = 가위, 2 = 바위, 3 = 보
 	}
 
 	else if (num_yellow == 2)
@@ -462,7 +462,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		// edit_box 2 print
 		CString value1;
-		value1.Format(_T("%d user : %d"), user_score, user);
+		value1.Format(_T("R-S-P Number: %d, Score: %d"), user, user_score);
 		SetDlgItemText(IDC_EDIT2, value1);
 		//value1 += value1;
 		//UpdateData(false);
@@ -470,14 +470,24 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		// edit_box 3 print
 		CString value2;
-		value2.Format(_T("%d com : %d"), com_score, com);
+		value2.Format(_T("R-S-P Number: %d, Score: %d"), com, com_score);
 		SetDlgItemText(IDC_EDIT3, value2);
 		//value2 += value2;
 		//UpdateData(false);
 
 
-		if (user_score == 3 || com_score == 3)																	// 둘 중에 하나 3점이 나오면 reset
+		if (user_score == 3)																					// 둘 중에 하나 3점이 나오면 reset
 		{
+			AfxMessageBox(L"이겼습니다!");
+
+			user_score = 0;
+			com_score = 0;
+		}
+
+		else if (com_score == 3)
+		{
+			AfxMessageBox(L"졌습니다!");
+
 			user_score = 0;
 			com_score = 0;
 		}
