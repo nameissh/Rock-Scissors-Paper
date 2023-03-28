@@ -478,7 +478,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		if (user_score == 3)																					// 둘 중에 하나 3점이 나오면 reset
 		{
-			AfxMessageBox(L"이겼습니다!");
+			AfxMessageBox(L"이겼습니다!", MB_ICONINFORMATION);
 
 			user_score = 0;
 			com_score = 0;
@@ -486,7 +486,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		else if (com_score == 3)
 		{
-			AfxMessageBox(L"졌습니다!");
+			AfxMessageBox(L"졌습니다!", MB_ICONINFORMATION);
 
 			user_score = 0;
 			com_score = 0;
