@@ -7,6 +7,7 @@
 #include "FinalProject01.h"
 #include "FinalProject01Dlg.h"
 #include "afxdialogex.h"
+#include <Windows.h>
 
 
 #ifdef _DEBUG
@@ -54,6 +55,7 @@ END_MESSAGE_MAP()
 CFinalProject01Dlg::CFinalProject01Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_FINALPROJECT01_DIALOG, pParent)
 	
+	
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -64,6 +66,7 @@ void CFinalProject01Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_Picture, m_picture);
 	DDX_Control(pDX, IDC_EDIT1, m_box1);
 	DDX_Control(pDX, IDC_EDIT2, m_box2);
+	DDX_Control(pDX, IDC_EDIT3, m_box3);
 }
 
 BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
@@ -77,6 +80,7 @@ BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &CFinalProject01Dlg::OnBnClickedButton3)
 	ON_EN_CHANGE(IDC_EDIT2, &CFinalProject01Dlg::OnEnChangeEdit2)
 	ON_EN_CHANGE(IDC_EDIT1, &CFinalProject01Dlg::OnEnChangeEdit1)
+	ON_EN_CHANGE(IDC_EDIT3, &CFinalProject01Dlg::OnEnChangeEdit3)
 	ON_MESSAGE(WM_MYRECEIVE, &CFinalProject01Dlg::OnReceive)
 END_MESSAGE_MAP()
 
@@ -124,13 +128,22 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 	font.CreateFontIndirectW(&LogFont);										// 폰트 설정 생성
 	GetDlgItem(IDC_EDIT1)->SetFont(&font);									// 폰트 재설정
 
-	// static_text font
+	CClientDC dc(GetDlgItem(IDC_EDIT1));									// 폰트 가운데 정렬
+	CRect rt;
+	GetDlgItem(IDC_EDIT1)->GetClientRect(&rt);
+	//rt.top += 10;
+	//rt.bottom -= 10;
+	((CEdit*)GetDlgItem(IDC_EDIT1))->SetRect(&rt);
+
+
+	// static_text vs font
 	CFont m_staticTextFont;
 	m_staticTextFont.CreatePointFont(100, _T("Arial"));						// font size, font face.
 	CStatic* pStaticText = (CStatic*)GetDlgItem(IDC_STATIC);				// Replace IDC_STATIC_TEXT with the ID of your static text control.
 	if (pStaticText) {
 		pStaticText->SetFont(&m_staticTextFont);
 	}
+
 
 	// camera
 	capture = new VideoCapture(0);
@@ -216,7 +229,6 @@ LRESULT CFinalProject01Dlg::OnThreadClosed(WPARAM length, LPARAM lpara)
 
 LRESULT CFinalProject01Dlg::OnReceive(WPARAM length, LPARAM lpara)
 {
-	CString str;
 
 	char* data = new char[length + 1];
 	if (m_comm)
@@ -227,6 +239,22 @@ LRESULT CFinalProject01Dlg::OnReceive(WPARAM length, LPARAM lpara)
 
 		str = CString(data);
 		m_box1.SetWindowTextW(str);																		// m_box1 = CEdit, str을 바로 m_box1에 출력해줌
+
+
+		if (str.Compare(_T("Scissors")) == 1)															// str과 비교해서 com 값 설정 → 1 = 가위, 2 = 바위, 3 = 보
+		{
+			com = 1;
+		}
+
+		else if (str.Compare(_T("Rock")) == 1)
+		{
+			com = 2;
+		}
+
+		else if (str.Compare(_T("Paper")) == 1)																			// com = 3
+		{
+			com = 3;
+		}
 
 		str = "";
 		m_box1.LineScroll(m_box1.GetLineCount());
@@ -253,6 +281,8 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	//cvtColor(frame, frame, COLOR_BGR2GRAY);															// grayscale 이미지로 변환, 컬러영상을 띄우려면 주석 처리
 
+
+	// user
 	cvtColor(frame, hsv_frame, COLOR_BGR2HSV);
 
 	Mat yellow_mask, yellow_frame;
@@ -276,23 +306,33 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	String text;
 
 	if (num_red > 0)																					// 빨간색 스티커가 0개보다 많으면 (1개)
+	{
 		text = "Rock!";
+		user = 2;																						// user → 2 = 바위, 1 = 가위, 3 = 보
+	}
 
 	else if (num_yellow == 2)
+	{
 		text = "Scissors!";
+		user = 1;
+	}
 
 	else if (num_yellow == 5)
+	{
 		text = "Paper!";
+		user = 3;
+	}
 
 	putText(frame, text, Point(20, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
 
 
-	int bpp = 8 * frame.elemSize();																		// 화면에 보여주기 위한 처리
+	// camera
+	int bpp = 8 * frame.elemSize();																			// 화면에 보여주기 위한 처리
 	assert((bpp == 8 || bpp == 24 || bpp == 32));
 
 	int padding = 0;
 
-	if (bpp < 32)																						// DWORD 정렬: 32비트 이미지 → 각 픽셀에 4바이트 필요
+	if (bpp < 32)																							// DWORD 정렬: 32비트 이미지 → 각 픽셀에 4바이트 필요
 	{
 		padding = 4 - (frame.cols % 4);
 	}
@@ -302,7 +342,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	int border = 0;
 
-	if (bpp < 32)																						// DWORD 정렬: 32비트 이미지 → 각 픽셀에 4바이트 필요
+	if (bpp < 32)																							// DWORD 정렬: 32비트 이미지 → 각 픽셀에 4바이트 필요
 	{
 		border = 4 - (frame.cols % 4);
 	}
@@ -311,7 +351,7 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 	if (border > 0 || frame.isContinuous() == false)
 	{
-		cv::copyMakeBorder(frame, temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);						// 오른쪽에 최대 3픽셀의 필요한 열 추가
+		cv::copyMakeBorder(frame, temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);							// 오른쪽에 최대 3픽셀의 필요한 열 추가
 	}
 
 	else
@@ -380,6 +420,71 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	cimage_mfc.ReleaseDC();
 	cimage_mfc.Destroy();
 
+
+	if (nIDEvent == 100)																						// timer open
+	{
+		// score
+		if (user == 1 && com == 3)																				// user 이길때
+		{
+			user_score++;
+		}
+
+		else if (user == 2 && com == 1)
+		{
+			user_score++;
+		}
+
+		else if (user == 3 && com == 2)
+		{
+			user_score++;
+		}
+
+		else if (com == 1 && user == 3)																			// com 이길때
+		{
+			com_score++;
+		}
+
+		else if (com == 2 && user == 1)
+		{
+			com_score++;
+		}
+
+		else if (com == 3 && user == 2)
+		{
+			com_score++;
+		}
+
+		else if (user == com)																					// 비김
+		{
+			;
+		}
+
+
+		// edit_box 2 print
+		CString value1;
+		value1.Format(_T("%d user : %d"), user_score, user);
+		SetDlgItemText(IDC_EDIT2, value1);
+		//value1 += value1;
+		//UpdateData(false);
+
+
+		// edit_box 3 print
+		CString value2;
+		value2.Format(_T("%d com : %d"), com_score, com);
+		SetDlgItemText(IDC_EDIT3, value2);
+		//value2 += value2;
+		//UpdateData(false);
+
+
+		if (user_score == 3 || com_score == 3)																	// 둘 중에 하나 3점이 나오면 reset
+		{
+			user_score = 0;
+			com_score = 0;
+		}
+
+		KillTimer(100);
+	}
+
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -388,11 +493,13 @@ void CFinalProject01Dlg::OnBnClickedButton1()															// start → 랜덤�
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	CString str;
+	CString str_send;
 
-	str = _T("S");
+	str_send = _T("S");
 
-	m_comm->Send(str, str.GetLength());
+	m_comm->Send(str_send, str_send.GetLength());
+
+	SetTimer(100, 500, NULL);
 }
 
 
@@ -407,6 +514,17 @@ void CFinalProject01Dlg::OnBnClickedButton2()															// reset
 	m_comm->Send(str, str.GetLength());
 
 	GetDlgItem(IDC_EDIT1)->SetWindowText(_T("RESET"));
+
+	user_score = 0;																						// edit_box2, edit_box3 = 0
+	com_score = 0;
+
+	CString value1;
+	value1.Format(_T("%d"), user_score);
+	SetDlgItemText(IDC_EDIT2, value1);
+
+	CString value2;
+	value2.Format(_T("%d"), com_score);
+	SetDlgItemText(IDC_EDIT3, value2);
 }
 
 
@@ -435,7 +553,17 @@ void CFinalProject01Dlg::OnEnChangeEdit1()																								// computer
 }
 
 
-void CFinalProject01Dlg::OnEnChangeEdit2()																								// score
+void CFinalProject01Dlg::OnEnChangeEdit2()																								// user score
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+void CFinalProject01Dlg::OnEnChangeEdit3()																								// com score
 {
 	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
 	// CDialogEx::OnInitDialog() 함수를 재지정 

@@ -59,7 +59,14 @@ public:
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnEnChangeEdit1();
 	afx_msg void OnEnChangeEdit2();
+	afx_msg void OnEnChangeEdit3();
 	CEdit m_box1;
 	CEdit m_box2;
+	CEdit m_box3;
+	int user = 0;
+	int com = 0;
+	int user_score = 0;
+	int com_score = 0;
+	CString str;
 };
 
