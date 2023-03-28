@@ -4,7 +4,6 @@ int angle1 = -90;
 int angle2 = -90;
 int angle3 = -90;
 long randNum;
-//char hand;
 
 void setup() {
   Serial.begin(115200);
@@ -26,25 +25,25 @@ void loop() {
 
     if (str == 'S')
     {
-      randNum = random(1, 4);                 // print a random num from 1 to 3
-      Serial.println(randNum);
+      randNum = random(1, 7);                 // print a random num from 1 to 6
+      //Serial.println(randNum);
       
-      if (randNum == 1)
+      if (randNum == 1 || randNum == 4)
       {
         ser1.write(90);
-        Serial.println("가위");    
+        Serial.println("Scissors");    
       }
       
-      else if (randNum == 2)
+      else if (randNum == 2 || randNum == 5)
       {
         ser2.write(90);
-        Serial.println("바위");
+        Serial.println("Rock");
       }
       
-      else if (randNum == 3)
+      else if (randNum == 3 || randNum == 6)
       {
         ser3.write(90); 
-        Serial.println("보");
+        Serial.println("Paper");
       }
     }   
     
