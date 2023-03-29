@@ -68,5 +68,6 @@ public:
 	int user_score = 0;
 	int com_score = 0;
 	CString str;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 };
 

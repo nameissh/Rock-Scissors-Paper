@@ -82,6 +82,7 @@ BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT1, &CFinalProject01Dlg::OnEnChangeEdit1)
 	ON_EN_CHANGE(IDC_EDIT3, &CFinalProject01Dlg::OnEnChangeEdit3)
 	ON_MESSAGE(WM_MYRECEIVE, &CFinalProject01Dlg::OnReceive)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -131,18 +132,42 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 	CClientDC dc(GetDlgItem(IDC_EDIT1));									// 폰트 가운데 정렬
 	CRect rt;
 	GetDlgItem(IDC_EDIT1)->GetClientRect(&rt);
-	//rt.top += 10;
-	//rt.bottom -= 10;
+	rt.top += 50;
+	rt.bottom -= 10;
 	((CEdit*)GetDlgItem(IDC_EDIT1))->SetRect(&rt);
 
 
+	// edit_box 2 font
+	static CFont font_box2;
+	LOGFONT LogFont_box2;
+
+	GetDlgItem(IDC_EDIT2)->GetFont()->GetLogFont(&LogFont_box2);
+	LogFont_box2.lfWeight = 40;
+	LogFont_box2.lfHeight = 20;
+	font_box2.CreateFontIndirectW(&LogFont_box2);
+	GetDlgItem(IDC_EDIT2)->SetFont(&font_box2);
+
+
+	// edit_box 3 font
+	static CFont font_box3;
+	LOGFONT LogFont_box3;
+
+	GetDlgItem(IDC_EDIT3)->GetFont()->GetLogFont(&LogFont_box3);
+	LogFont_box3.lfWeight = 40;
+	LogFont_box3.lfHeight = 20;
+	font_box3.CreateFontIndirectW(&LogFont_box3);
+	GetDlgItem(IDC_EDIT3)->SetFont(&font_box3);
+
+
 	// static_text vs font
-	CFont m_staticTextFont;
-	m_staticTextFont.CreatePointFont(100, _T("Arial"));						// font size, font face.
-	CStatic* pStaticText = (CStatic*)GetDlgItem(IDC_STATIC);				// Replace IDC_STATIC_TEXT with the ID of your static text control.
-	if (pStaticText) {
-		pStaticText->SetFont(&m_staticTextFont);
-	}
+	CFont font2;
+	LOGFONT Logfont2;
+	::ZeroMemory(&Logfont2, sizeof(Logfont2));
+	Logfont2.lfHeight = 19;
+	Logfont2.lfWeight = AFX_IDS_BOLDITALIC;
+	font2.CreateFontIndirect(&Logfont2);
+	GetDlgItem(IDC_STATIC)->SetFont(&font2);
+	font2.Detach();
 
 
 	// camera
@@ -159,7 +184,7 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 	SetTimer(1000, 30, NULL);
 
 	//serial
-	m_comm = new CSerialComm(_T("\\\\.\\COM5"), _T("115200"), _T("None"), _T("8 Bit"), _T("1 Bit"));          // initial Comm port
+	m_comm = new CSerialComm(_T("\\\\.\\COM8"), _T("115200"), _T("None"), _T("8 Bit"), _T("1 Bit"));          // initial Comm port
 	if (m_comm->Create(GetSafeHwnd()) != 0)																	  //통신포트를 열고 윈도우의 핸들을 넘긴다.
 	{
 		;
@@ -270,6 +295,10 @@ void CFinalProject01Dlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
+
+	m_comm->Close();
+	m_comm = NULL;
+	delete m_comm;
 }
 
 
@@ -322,6 +351,11 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 		text = "Paper!";
 		user = 3;
 	}
+
+	/*else
+	{
+		default값 설정하기
+	}*/
 
 	putText(frame, text, Point(20, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 255, 0), 2);
 
@@ -581,4 +615,37 @@ void CFinalProject01Dlg::OnEnChangeEdit3()																								// com score
 	// 이 알림 메시지를 보내지 않습니다.
 
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+HBRUSH CFinalProject01Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  여기서 DC의 특성을 변경합니다.
+
+	// TODO:  기본값이 적당하지 않으면 다른 브러시를 반환합니다.
+
+	if (pWnd->GetDlgCtrlID() == IDC_EDIT1)										// 해당 컨트롤러가 맞는지 체크
+	{
+		pDC->SetTextColor(RGB(255, 255, 255));									// 글자색 변경
+		//pDC->SetBkColor(RGB(255, 255, 255));									// 글자 배경색 변경
+		hbr = ::CreateSolidBrush(RGB(107, 142, 35));							// edit control 배경색 변경
+	}
+
+	if (pWnd->GetDlgCtrlID() == IDC_EDIT2)
+	{
+		pDC->SetTextColor(RGB(255, 255, 255));
+		//pDC->SetBkColor(RGB(255, 255, 255));
+		hbr = ::CreateSolidBrush(RGB(189, 183, 107));
+	}
+
+	if (pWnd->GetDlgCtrlID() == IDC_EDIT3)
+	{
+		pDC->SetTextColor(RGB(255, 255, 255));
+		//pDC->SetBkColor(RGB(255, 255, 255));
+		hbr = ::CreateSolidBrush(RGB(189, 183, 107));
+	}
+
+	return hbr;
 }
