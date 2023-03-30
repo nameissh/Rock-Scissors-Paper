@@ -119,6 +119,10 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
+
+	// name setting
+	SetWindowText(_T("R-S-P Project_sehaJ"));
+
 	// edit_box 1 font
 	static CFont font;
 	LOGFONT LogFont;
@@ -143,7 +147,7 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	GetDlgItem(IDC_EDIT2)->GetFont()->GetLogFont(&LogFont_box2);
 	LogFont_box2.lfWeight = 40;
-	LogFont_box2.lfHeight = 20;
+	LogFont_box2.lfHeight = 30;
 	font_box2.CreateFontIndirectW(&LogFont_box2);
 	GetDlgItem(IDC_EDIT2)->SetFont(&font_box2);
 
@@ -154,7 +158,7 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	GetDlgItem(IDC_EDIT3)->GetFont()->GetLogFont(&LogFont_box3);
 	LogFont_box3.lfWeight = 40;
-	LogFont_box3.lfHeight = 20;
+	LogFont_box3.lfHeight = 30;
 	font_box3.CreateFontIndirectW(&LogFont_box3);
 	GetDlgItem(IDC_EDIT3)->SetFont(&font_box3);
 
@@ -496,7 +500,8 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		// edit_box 2 print
 		CString value1;
-		value1.Format(_T("R-S-P Number: %d, Score: %d"), user, user_score);
+		//value1.Format(_T("R-S-P Number: %d, Score: %d"), user, user_score);
+		value1.Format(_T("  %d"), user_score);
 		SetDlgItemText(IDC_EDIT2, value1);
 		//value1 += value1;
 		//UpdateData(false);
@@ -504,7 +509,8 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 
 		// edit_box 3 print
 		CString value2;
-		value2.Format(_T("R-S-P Number: %d, Score: %d"), com, com_score);
+		//value2.Format(_T("R-S-P Number: %d, Score: %d"), com, com_score);
+		value2.Format(_T("  %d"), com_score);
 		SetDlgItemText(IDC_EDIT3, value2);
 		//value2 += value2;
 		//UpdateData(false);
@@ -637,14 +643,14 @@ HBRUSH CFinalProject01Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		pDC->SetTextColor(RGB(255, 255, 255));
 		//pDC->SetBkColor(RGB(255, 255, 255));
-		hbr = ::CreateSolidBrush(RGB(189, 183, 107));
+		hbr = ::CreateSolidBrush(RGB(107, 160, 100));
 	}
 
 	if (pWnd->GetDlgCtrlID() == IDC_EDIT3)
 	{
 		pDC->SetTextColor(RGB(255, 255, 255));
 		//pDC->SetBkColor(RGB(255, 255, 255));
-		hbr = ::CreateSolidBrush(RGB(189, 183, 107));
+		hbr = ::CreateSolidBrush(RGB(107, 160, 100));
 	}
 
 	return hbr;
