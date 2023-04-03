@@ -67,6 +67,7 @@ void CFinalProject01Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT1, m_box1);
 	DDX_Control(pDX, IDC_EDIT2, m_box2);
 	DDX_Control(pDX, IDC_EDIT3, m_box3);
+	DDX_Control(pDX, IDC_EDIT4, m_box4);
 }
 
 BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
@@ -83,6 +84,7 @@ BEGIN_MESSAGE_MAP(CFinalProject01Dlg, CDialogEx)
 	ON_EN_CHANGE(IDC_EDIT3, &CFinalProject01Dlg::OnEnChangeEdit3)
 	ON_MESSAGE(WM_MYRECEIVE, &CFinalProject01Dlg::OnReceive)
 	ON_WM_CTLCOLOR()
+	ON_EN_CHANGE(IDC_EDIT4, &CFinalProject01Dlg::OnEnChangeEdit4)
 END_MESSAGE_MAP()
 
 
@@ -161,6 +163,17 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 	LogFont_box3.lfHeight = 30;
 	font_box3.CreateFontIndirectW(&LogFont_box3);
 	GetDlgItem(IDC_EDIT3)->SetFont(&font_box3);
+
+
+	// edit_box 4 font
+	static CFont font_box4;
+	LOGFONT LogFont_box4;
+
+	GetDlgItem(IDC_EDIT4)->GetFont()->GetLogFont(&LogFont_box4);
+	LogFont_box4.lfWeight = 40;
+	LogFont_box4.lfHeight = 30;
+	font_box4.CreateFontIndirectW(&LogFont_box4);
+	GetDlgItem(IDC_EDIT4)->SetFont(&font_box4);
 
 
 	// static_text vs font
@@ -273,16 +286,19 @@ LRESULT CFinalProject01Dlg::OnReceive(WPARAM length, LPARAM lpara)
 		if (str.Compare(_T("Scissors")) == 1)															// str과 비교해서 com 값 설정 → 1 = 가위, 2 = 바위, 3 = 보
 		{
 			com = 1;
+			GetScore();																					// 점수 설정 함수 호출
 		}
 
 		else if (str.Compare(_T("Rock")) == 1)
 		{
 			com = 2;
+			GetScore();
 		}
 
 		else if (str.Compare(_T("Paper")) == 1)
 		{
 			com = 3;
+			GetScore();
 		}
 
 		str = "";
@@ -458,83 +474,6 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 	cimage_mfc.ReleaseDC();
 	cimage_mfc.Destroy();
 
-
-	if (nIDEvent == 100)																						// timer open
-	{
-		// score
-		if (user == 1 && com == 3)																				// user 이길때
-		{
-			user_score++;
-		}
-
-		else if (user == 2 && com == 1)
-		{
-			user_score++;
-		}
-
-		else if (user == 3 && com == 2)
-		{
-			user_score++;
-		}
-
-		else if (com == 1 && user == 3)																			// com 이길때
-		{
-			com_score++;
-		}
-
-		else if (com == 2 && user == 1)
-		{
-			com_score++;
-		}
-
-		else if (com == 3 && user == 2)
-		{
-			com_score++;
-		}
-
-		else if (user == com)																					// 비김
-		{
-			;
-		}
-
-
-		// edit_box 2 print
-		CString value1;
-		//value1.Format(_T("R-S-P Number: %d, Score: %d"), user, user_score);
-		value1.Format(_T("  %d"), user_score);
-		SetDlgItemText(IDC_EDIT2, value1);
-		//value1 += value1;
-		//UpdateData(false);
-
-
-		// edit_box 3 print
-		CString value2;
-		//value2.Format(_T("R-S-P Number: %d, Score: %d"), com, com_score);
-		value2.Format(_T("  %d"), com_score);
-		SetDlgItemText(IDC_EDIT3, value2);
-		//value2 += value2;
-		//UpdateData(false);
-
-
-		if (user_score == 3)																					// 둘 중에 하나 3점이 나오면 reset
-		{
-			AfxMessageBox(L"이겼습니다!", MB_ICONINFORMATION);
-
-			user_score = 0;
-			com_score = 0;
-		}
-
-		else if (com_score == 3)
-		{
-			AfxMessageBox(L"졌습니다!", MB_ICONINFORMATION);
-
-			user_score = 0;
-			com_score = 0;
-		}
-
-		KillTimer(100);
-	}
-
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -548,8 +487,6 @@ void CFinalProject01Dlg::OnBnClickedButton1()															// start → 랜덤�
 	str_send = _T("S");
 
 	m_comm->Send(str_send, str_send.GetLength());
-
-	SetTimer(100, 500, NULL);
 }
 
 
@@ -613,7 +550,19 @@ void CFinalProject01Dlg::OnEnChangeEdit2()																								// user score
 	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
 
+
 void CFinalProject01Dlg::OnEnChangeEdit3()																								// com score
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CFinalProject01Dlg::OnEnChangeEdit4()
 {
 	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
 	// CDialogEx::OnInitDialog() 함수를 재지정 
@@ -653,5 +602,104 @@ HBRUSH CFinalProject01Dlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		hbr = ::CreateSolidBrush(RGB(107, 160, 100));
 	}
 
+	if (pWnd->GetDlgCtrlID() == IDC_EDIT4)
+	{
+		pDC->SetTextColor(RGB(255, 255, 255));
+		//pDC->SetBkColor(RGB(255, 255, 255));
+		hbr = ::CreateSolidBrush(RGB(107, 160, 100));
+	}
+
 	return hbr;
+}
+
+
+// score
+void CFinalProject01Dlg::GetScore()
+{
+	// TODO: 여기에 구현 코드 추가.
+
+	CString value3;
+
+	if (user == 1 && com == 3)																				// user 이길때
+	{
+		user_score++;
+
+		value3.Format(_T("You Win!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (user == 2 && com == 1)
+	{
+		user_score++;
+
+		value3.Format(_T("You Win!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (user == 3 && com == 2)
+	{
+		user_score++;
+
+		value3.Format(_T("You Win!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (com == 1 && user == 3)																			// com 이길때
+	{
+		com_score++;
+
+		value3.Format(_T("You Lose!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (com == 2 && user == 1)
+	{
+		com_score++;
+
+		value3.Format(_T("You Lose!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (com == 3 && user == 2)
+	{
+		com_score++;
+
+		value3.Format(_T("You Lose!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+	else if (user == com)																					// 비김
+	{
+		value3.Format(_T("Draw!"));
+		SetDlgItemText(IDC_EDIT4, value3);
+	}
+
+
+	// edit_box 2 print
+	CString value1;
+	//value1.Format(_T("R-S-P Number: %d, Score: %d"), user, user_score);
+	value1.Format(_T("  %d"), user_score);
+	SetDlgItemText(IDC_EDIT2, value1);
+	//value1 += value1;
+	//UpdateData(false);
+
+
+	// edit_box 3 print
+	CString value2;
+	//value2.Format(_T("R-S-P Number: %d, Score: %d"), com, com_score);
+	value2.Format(_T("  %d"), com_score);
+	SetDlgItemText(IDC_EDIT3, value2);
+	//value2 += value2;
+	//UpdateData(false);
+
+
+	if (user_score == 3)																					// 둘 중에 하나 3점이 나오면 메세지
+	{
+		AfxMessageBox(L"이겼습니다!", MB_ICONINFORMATION);
+	}
+
+	else if (com_score == 3)
+	{
+		AfxMessageBox(L"졌습니다!", MB_ICONINFORMATION);
+	}
 }

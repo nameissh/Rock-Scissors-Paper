@@ -69,5 +69,9 @@ public:
 	int com_score = 0;
 	CString str;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	CEdit m_box4;
+	afx_msg void OnEnChangeEdit4();
+//	int GetScore();
+	void GetScore();
 };
 
