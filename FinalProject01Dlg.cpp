@@ -200,6 +200,7 @@ BOOL CFinalProject01Dlg::OnInitDialog()
 
 	SetTimer(1000, 30, NULL);
 
+
 	//serial
 	m_comm = new CSerialComm(_T("\\\\.\\COM8"), _T("115200"), _T("None"), _T("8 Bit"), _T("1 Bit"));          // initial Comm port
 	if (m_comm->Create(GetSafeHwnd()) != 0)																	  //통신포트를 열고 윈도우의 핸들을 넘긴다.
@@ -481,6 +482,14 @@ void CFinalProject01Dlg::OnTimer(UINT_PTR nIDEvent)
 void CFinalProject01Dlg::OnBnClickedButton1()															// start → 랜덤번호 생성 및 가위바위보 결과 출력
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	wchar_t work_path[MAX_PATH];																		// 경로를 저장한 변수
+	GetCurrentDirectory(MAX_PATH, work_path);															// 현재 작업 경로
+	StrCatW(work_path, L"\\RSP.wav");																	// 작업 경로에 재생하려는 wav 파일명을 덧붙임
+	sndPlaySound(work_path, SND_ASYNC);
+	PlaySound(work_path, NULL, SND_ASYNC | SND_FILENAME);
+
+	Sleep(2000);
 
 	CString str_send;
 

@@ -3,9 +3,11 @@
 //
 
 #pragma once
+#pragma comment(lib, "winmm")
 
 #include "opencv2/opencv.hpp"
 #include "SerialCom.h"
+#include <mmsystem.h>
 
 
 using namespace cv;
@@ -71,7 +73,6 @@ public:
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CEdit m_box4;
 	afx_msg void OnEnChangeEdit4();
-//	int GetScore();
 	void GetScore();
 };
 
