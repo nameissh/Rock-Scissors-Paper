@@ -704,11 +704,23 @@ void CFinalProject01Dlg::GetScore()
 
 	if (user_score == 3)																					// 둘 중에 하나 3점이 나오면 메세지
 	{
+		wchar_t work_path1[MAX_PATH];
+		GetCurrentDirectory(MAX_PATH, work_path1);
+		StrCatW(work_path1, L"\\Clap.wav");
+		sndPlaySound(work_path1, SND_ASYNC);
+		PlaySound(work_path1, NULL, SND_ASYNC | SND_FILENAME);
+
 		AfxMessageBox(L"이겼습니다!", MB_ICONINFORMATION);
 	}
 
 	else if (com_score == 3)
 	{
+		wchar_t work_path2[MAX_PATH];
+		GetCurrentDirectory(MAX_PATH, work_path2);
+		StrCatW(work_path2, L"\\Fail.wav");
+		sndPlaySound(work_path2, SND_ASYNC);
+		PlaySound(work_path2, NULL, SND_ASYNC | SND_FILENAME);
+
 		AfxMessageBox(L"졌습니다!", MB_ICONINFORMATION);
 	}
 }

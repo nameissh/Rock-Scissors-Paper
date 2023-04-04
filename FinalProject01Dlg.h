@@ -74,5 +74,6 @@ public:
 	CEdit m_box4;
 	afx_msg void OnEnChangeEdit4();
 	void GetScore();
+	int m_flag;
 };
 
