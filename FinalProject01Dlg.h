@@ -57,6 +57,7 @@ public:
 	Scalar lowerr = Scalar(0, 100, 100);																	// HSV color 빨간색 범위 지정
 	Scalar upperr = Scalar(10, 255, 255);
 	afx_msg void OnBnClickedButton1();
+	void DoPlay();
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnEnChangeEdit1();
@@ -69,11 +70,11 @@ public:
 	int com = 0;
 	int user_score = 0;
 	int com_score = 0;
-	CString str;
+	//CString str;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	CEdit m_box4;
 	afx_msg void OnEnChangeEdit4();
 	void GetScore();
-	int m_flag;
+	bool m_flag = false;
 };
 
